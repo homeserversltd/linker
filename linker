@@ -1,0 +1,34 @@
+#!/usr/local/lib/linker/venv/bin/python
+# -*- coding: utf-8 -*-
+
+"""Main entry point for the linker TUI utility."""
+
+import sys
+import pathlib
+import os
+
+# Warn if not running as root
+if os.geteuid() != 0:
+    print("[WARNING] Linker: You are not running as root. For hardlinking to work, run this tool with sudo.", file=sys.stderr)
+
+# Locate the library directory in /usr/local/lib/linker
+script_path = pathlib.Path(__file__).resolve()
+lib_path = pathlib.Path('/usr/local/lib/linker')
+
+if lib_path.is_dir():
+    if str(lib_path) not in sys.path:
+        sys.path.insert(0, str(lib_path))
+
+try:
+    from tui_browser import LinkerTUI
+except ImportError as e:
+    print(f"Error: Failed to import LinkerTUI. Make sure it is installed or accessible via PYTHONPATH.", file=sys.stderr)
+    print(f"Attempted library path: {lib_path}", file=sys.stderr)
+    print(f"Python path: {sys.path}", file=sys.stderr)
+    print(f"Import error: {e}", file=sys.stderr)
+    sys.exit(1)
+
+if __name__ == '__main__':
+
+    app = LinkerTUI()
+    app.run()
